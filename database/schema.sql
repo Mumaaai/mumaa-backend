@@ -18,6 +18,10 @@ CREATE TABLE IF NOT EXISTS babies (
     name TEXT NOT NULL,
     date_of_birth DATE NOT NULL,
     gender TEXT,
+    blood_group TEXT,
+    preferred_language TEXT DEFAULT 'hinglish',
+    ai_detail TEXT DEFAULT 'balanced',
+    mom_name TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -26,6 +30,7 @@ CREATE TABLE IF NOT EXISTS babies (
 CREATE TABLE IF NOT EXISTS chat_messages (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
+    session_id TEXT NOT NULL,
     role TEXT CHECK( role IN ('user', 'assistant', 'system') ) NOT NULL,
     content TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
