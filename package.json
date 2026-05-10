@@ -1,0 +1,26 @@
+{
+  "name": "mumaa-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mumaaai/mumaa-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mumaaai/mumaa-backend/issues"
+  },
+  "homepage": "https://github.com/Mumaaai/mumaa-backend#readme",
+  "dependencies": {
+    "hono": "^4.12.18"
+  },
+  "devDependencies": {
+    "wrangler": "^4.90.0"
+  }
+}
