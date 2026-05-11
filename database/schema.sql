@@ -26,6 +26,16 @@ CREATE TABLE IF NOT EXISTS babies (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- 2.5 Chat Sessions Table
+CREATE TABLE IF NOT EXISTS chat_sessions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    title TEXT DEFAULT 'New Chat',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- 3. AI Chat Messages Table
 CREATE TABLE IF NOT EXISTS chat_messages (
     id TEXT PRIMARY KEY,
@@ -42,12 +52,9 @@ CREATE TABLE IF NOT EXISTS activity_logs (
     id TEXT PRIMARY KEY,
     baby_id TEXT NOT NULL,
     activity_type TEXT CHECK( activity_type IN ('feeding', 'diaper', 'sleep') ) NOT NULL,
-    -- Details based on type: 
-    -- Feeding: 'breast', 'bottle', 'solid'
-    -- Diaper: 'wet', 'dirty', 'both'
     detail TEXT,
     start_time DATETIME NOT NULL,
-    end_time DATETIME, -- Mainly used for sleep duration
+    end_time DATETIME, 
     notes TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (baby_id) REFERENCES babies(id) ON DELETE CASCADE
@@ -80,7 +87,7 @@ CREATE TABLE IF NOT EXISTS milestones (
     id TEXT PRIMARY KEY,
     baby_id TEXT NOT NULL,
     milestone_name TEXT NOT NULL,
-    category TEXT, -- e.g., 'motor', 'cognitive', 'social'
+    category TEXT, 
     achieved_date DATE,
     status TEXT CHECK( status IN ('pending', 'achieved') ) DEFAULT 'pending',
     FOREIGN KEY (baby_id) REFERENCES babies(id) ON DELETE CASCADE
@@ -92,7 +99,7 @@ CREATE TABLE IF NOT EXISTS memory_journal (
     baby_id TEXT NOT NULL,
     title TEXT NOT NULL,
     description TEXT,
-    media_url TEXT, -- For storing photos or videos (AWS S3/Local Path)
+    media_url TEXT, 
     recorded_date DATE NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (baby_id) REFERENCES babies(id) ON DELETE CASCADE
