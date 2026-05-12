@@ -157,7 +157,10 @@ app.get('/baby/:userId', async (c) => {
 })
 
 app.post('/baby', async (c) => {
-  const { userId, name, dob, gender, bloodGroup, language, aiDetail, momName } = await c.req.json()
+  const { 
+    userId, name, dob, gender, bloodGroup, language, aiDetail, momName,
+    deliveryType, parentingType, medicalConditions, birthWeight, momCondition
+  } = await c.req.json()
   
   if (!userId || !name || !dob) {
     return c.json({ error: 'Missing required fields' }, 400)
@@ -170,8 +173,17 @@ app.post('/baby', async (c) => {
 
     if (existingBaby) {
       await c.env.DB.prepare(
-        'UPDATE babies SET name = ?, date_of_birth = ?, gender = ?, blood_group = ?, preferred_language = ?, ai_detail = ?, mom_name = ? WHERE user_id = ?'
-      ).bind(name, dob, gender, bloodGroup, language, aiDetail, momName, userId).run()
+        `UPDATE babies SET 
+          name = ?, date_of_birth = ?, gender = ?, blood_group = ?, 
+          preferred_language = ?, ai_detail = ?, mom_name = ?,
+          delivery_type = ?, parenting_type = ?, medical_conditions = ?,
+          birth_weight = ?, mom_condition = ?
+         WHERE user_id = ?`
+      ).bind(
+        name, dob, gender, bloodGroup, language, aiDetail, momName,
+        deliveryType, parentingType, medicalConditions, birthWeight, momCondition,
+        userId
+      ).run()
       
       // Check if vaccinations need seeding
       const vaxCount = await c.env.DB.prepare('SELECT COUNT(*) as count FROM vaccinations WHERE baby_id = ?').bind(existingBaby.id).first<{count: number}>()
@@ -189,8 +201,18 @@ app.post('/baby', async (c) => {
     } else {
       const babyId = crypto.randomUUID()
       await c.env.DB.prepare(
-        'INSERT INTO babies (id, user_id, name, date_of_birth, gender, blood_group, preferred_language, ai_detail, mom_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-      ).bind(babyId, userId, name, dob, gender, bloodGroup, language, aiDetail, momName).run()
+        `INSERT INTO babies (
+          id, user_id, name, date_of_birth, gender, blood_group, 
+          preferred_language, ai_detail, mom_name,
+          delivery_type, parenting_type, medical_conditions,
+          birth_weight, mom_condition
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).bind(
+        babyId, userId, name, dob, gender, bloodGroup, 
+        language, aiDetail, momName,
+        deliveryType, parentingType, medicalConditions,
+        birthWeight, momCondition
+      ).run()
       
       // Initialize schedule
       await seedVaccinations(c.env.DB, babyId, dob)
@@ -358,13 +380,11 @@ app.get('/dashboard/:userId', async (c) => {
 
     const todayStats = {
       feedings: 0,
-      diapers: 0,
       sleepHours: 0
     }
 
     stats.results.forEach((r: any) => {
       if (r.activity_type === 'feeding') todayStats.feedings = Number(r.count)
-      if (r.activity_type === 'diaper') todayStats.diapers = Number(r.count)
       if (r.activity_type === 'sleep') todayStats.sleepHours = Math.round((Number(r.total_seconds) || 0) / 3600 * 10) / 10
     })
 

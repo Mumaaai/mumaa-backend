@@ -22,6 +22,11 @@ CREATE TABLE IF NOT EXISTS babies (
     preferred_language TEXT DEFAULT 'hinglish',
     ai_detail TEXT DEFAULT 'balanced',
     mom_name TEXT,
+    delivery_type TEXT,
+    parenting_type TEXT,
+    medical_conditions TEXT,
+    birth_weight REAL,
+    mom_condition TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
