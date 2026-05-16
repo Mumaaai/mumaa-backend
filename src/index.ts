@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import opsRoutes from './opsboard'
 
 
 type Bindings = {
@@ -634,7 +635,5 @@ app.delete('/vaccinations/:vaccineId', async (c) => {
   await c.env.DB.prepare('DELETE FROM vaccinations WHERE id = ?').bind(vaccineId).run()
   return c.json({ status: 'deleted' })
 })
-
-
 
 export default app
