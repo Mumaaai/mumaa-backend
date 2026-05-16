@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import opsRoutes from './opsboard'
 
 type Bindings = {
   DB: D1Database
@@ -22,7 +23,7 @@ async function hashPassword(password: string) {
 app.use('*', cors({
   origin: '*', 
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-Staff-ID'],
   exposeHeaders: ['Content-Length'],
   maxAge: 600,
   credentials: true,
@@ -629,5 +630,10 @@ app.delete('/vaccinations/:vaccineId', async (c) => {
   await c.env.DB.prepare('DELETE FROM vaccinations WHERE id = ?').bind(vaccineId).run()
   return c.json({ status: 'deleted' })
 })
+
+/**
+ * OpsBoard Integration
+ */
+app.route('/ops', opsRoutes)
 
 export default app
