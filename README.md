@@ -17,7 +17,12 @@ The serverless backend for the MUMAA AI ecosystem, built on Cloudflare Workers a
 ## 🛠 Setup & Deployment
 
 ### 1. Configure Wrangler
-Ensure your `wrangler.toml` has the correct `database_id` and `GOOGLE_CLIENT_ID`.
+Set `GOOGLE_CLIENT_ID` via Cloudflare Workers environment settings or a local `.dev.vars` file.
+
+For local development:
+```bash
+cp .dev.vars.example .dev.vars
+```
 
 ### 2. Install Dependencies
 ```bash

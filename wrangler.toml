@@ -2,10 +2,6 @@ name = "mumaa-api"
 main = "src/index.ts"
 compatibility_date = "2024-05-10"
 
-[vars]
-# Add your Google Client ID here
-GOOGLE_CLIENT_ID = "776390108864-k41d9jj0snan12qmco02gl0mjkue286s.apps.googleusercontent.com"
-
 [[d1_databases]]
 binding = "DB"
 database_name = "mumaa"
