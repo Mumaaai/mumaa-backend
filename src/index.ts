@@ -1,9 +1,10 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
+
 type Bindings = {
   DB: D1Database
-  GOOGLE_CLIENT_ID: string
+  GOOGLE_CLIENT_ID?: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -22,7 +23,7 @@ async function hashPassword(password: string) {
 app.use('*', cors({
   origin: '*', 
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-Staff-ID'],
   exposeHeaders: ['Content-Length'],
   maxAge: 600,
   credentials: true,
@@ -110,6 +111,10 @@ app.post('/auth/google', async (c) => {
   }
 
   try {
+    if (!c.env.GOOGLE_CLIENT_ID) {
+      return c.json({ error: 'Google OAuth is not configured on the backend' }, 500)
+    }
+
     const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${id_token}`)
     const payload: any = await response.json()
 
@@ -629,5 +634,7 @@ app.delete('/vaccinations/:vaccineId', async (c) => {
   await c.env.DB.prepare('DELETE FROM vaccinations WHERE id = ?').bind(vaccineId).run()
   return c.json({ status: 'deleted' })
 })
+
+
 
 export default app
