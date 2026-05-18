@@ -11,6 +11,7 @@ import growth       from './routes/growth'
 import vaccinations from './routes/vaccinations'
 import milestones   from './routes/milestones'
 import journal      from './routes/journal'
+import diet from './routes/diet_plan'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Bindings = {
@@ -58,5 +59,7 @@ app.route('/growth',       growth)
 app.route('/vaccinations', vaccinations)
 app.route('/milestones',   milestones)
 app.route('/journal',      journal)
+app.route('/journal',      diet)
+
 
 export default app
