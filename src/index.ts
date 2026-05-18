@@ -636,4 +636,110 @@ app.delete('/vaccinations/:vaccineId', async (c) => {
   return c.json({ status: 'deleted' })
 })
 
+/**
+ * Routines
+ */
+app.get('/routines/:userId', async (c) => {
+  const userId = c.req.param('userId')
+  try {
+    const record = await c.env.DB.prepare('SELECT * FROM user_routines WHERE user_id = ?')
+      .bind(userId)
+      .first<{ custom_routines: string, completed_tasks: string }>()
+
+    if (!record) {
+      return c.json({ customRoutines: [], completedTasks: {} })
+    }
+
+    return c.json({
+      customRoutines: JSON.parse(record.custom_routines || '[]'),
+      completedTasks: JSON.parse(record.completed_tasks || '{}')
+    })
+  } catch (err) {
+    console.error('GET /routines error:', err)
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
+app.post('/routines', async (c) => {
+  try {
+    const { userId, customRoutines, completedTasks } = await c.req.json()
+    
+    if (!userId) return c.json({ error: 'Missing userId' }, 400)
+
+    const existing = await c.env.DB.prepare('SELECT user_id FROM user_routines WHERE user_id = ?')
+      .bind(userId)
+      .first()
+
+    if (existing) {
+      await c.env.DB.prepare(
+        'UPDATE user_routines SET custom_routines = ?, completed_tasks = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?'
+      ).bind(JSON.stringify(customRoutines || []), JSON.stringify(completedTasks || {}), userId).run()
+    } else {
+      await c.env.DB.prepare(
+        'INSERT INTO user_routines (user_id, custom_routines, completed_tasks) VALUES (?, ?, ?)'
+      ).bind(userId, JSON.stringify(customRoutines || []), JSON.stringify(completedTasks || {})).run()
+    }
+
+    return c.json({ status: 'saved' })
+  } catch (err) {
+    console.error('POST /routines error:', err)
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
+/**
+ * Diets
+ */
+app.get('/diet/:userId', async (c) => {
+  const userId = c.req.param('userId')
+  try {
+    const record = await c.env.DB.prepare('SELECT * FROM user_diets WHERE user_id = ?')
+      .bind(userId)
+      .first<{ target: string, diet_type: string, content: string }>()
+
+    if (!record) {
+      return c.json({ error: 'No diet plan found' }, 404)
+    }
+
+    return c.json({
+      target: record.target,
+      dietType: record.diet_type,
+      content: record.content
+    })
+  } catch (err) {
+    console.error('GET /diet error:', err)
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
+app.post('/diet', async (c) => {
+  try {
+    const { userId, target, dietType } = await c.req.json()
+    
+    if (!userId) return c.json({ error: 'Missing userId' }, 400)
+
+    // Simulate AI generation for now (in a real app, this calls OpenAI or similar)
+    const content = `Here is your custom **${dietType}** nutrition plan for **${target === 'baby' ? 'Baby' : 'Mom'}**.\n\n• Morning: Nutrient-rich breakfast.\n• Afternoon: Balanced, energy-boosting lunch.\n• Evening: Light, digestive-friendly dinner.\n\nRemember to stay hydrated!`;
+
+    const existing = await c.env.DB.prepare('SELECT user_id FROM user_diets WHERE user_id = ?')
+      .bind(userId)
+      .first()
+
+    if (existing) {
+      await c.env.DB.prepare(
+        'UPDATE user_diets SET target = ?, diet_type = ?, content = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?'
+      ).bind(target, dietType, content, userId).run()
+    } else {
+      await c.env.DB.prepare(
+        'INSERT INTO user_diets (user_id, target, diet_type, content) VALUES (?, ?, ?, ?)'
+      ).bind(userId, target, dietType, content).run()
+    }
+
+    return c.json({ target, dietType, content })
+  } catch (err) {
+    console.error('POST /diet error:', err)
+    return c.json({ error: 'Database error' }, 500)
+  }
+})
+
 export default app
