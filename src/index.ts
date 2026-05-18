@@ -59,7 +59,7 @@ app.route('/growth',       growth)
 app.route('/vaccinations', vaccinations)
 app.route('/milestones',   milestones)
 app.route('/journal',      journal)
-app.route('/journal',      diet)
+app.route('/diet',         diet)
 
 
 /**
@@ -113,59 +113,6 @@ app.post('/routines', async (c) => {
   }
 })
 
-/**
- * Diets
- */
-app.get('/diet/:userId', async (c) => {
-  const userId = c.req.param('userId')
-  try {
-    const record = await c.env.DB.prepare('SELECT * FROM user_diets WHERE user_id = ?')
-      .bind(userId)
-      .first<{ target: string, diet_type: string, content: string }>()
-
-    if (!record) {
-      return c.json({ error: 'No diet plan found' }, 404)
-    }
-
-    return c.json({
-      target: record.target,
-      dietType: record.diet_type,
-      content: record.content
-    })
-  } catch (err) {
-    console.error('GET /diet error:', err)
-    return c.json({ error: 'Database error' }, 500)
-  }
-})
-
-app.post('/diet', async (c) => {
-  try {
-    const { userId, target, dietType } = await c.req.json()
-    
-    if (!userId) return c.json({ error: 'Missing userId' }, 400)
-
-    // Simulate AI generation for now (in a real app, this calls OpenAI or similar)
-    const content = `Here is your custom **${dietType}** nutrition plan for **${target === 'baby' ? 'Baby' : 'Mom'}**.\n\n• Morning: Nutrient-rich breakfast.\n• Afternoon: Balanced, energy-boosting lunch.\n• Evening: Light, digestive-friendly dinner.\n\nRemember to stay hydrated!`;
-
-    const existing = await c.env.DB.prepare('SELECT user_id FROM user_diets WHERE user_id = ?')
-      .bind(userId)
-      .first()
-
-    if (existing) {
-      await c.env.DB.prepare(
-        'UPDATE user_diets SET target = ?, diet_type = ?, content = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?'
-      ).bind(target, dietType, content, userId).run()
-    } else {
-      await c.env.DB.prepare(
-        'INSERT INTO user_diets (user_id, target, diet_type, content) VALUES (?, ?, ?, ?)'
-      ).bind(userId, target, dietType, content).run()
-    }
-
-    return c.json({ target, dietType, content })
-  } catch (err) {
-    console.error('POST /diet error:', err)
-    return c.json({ error: 'Database error' }, 500)
-  }
-})
+// Diet routes handled by ./routes/diet_plan.ts
 
 export default app
