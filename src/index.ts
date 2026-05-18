@@ -31,6 +31,8 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3000',   // Alt local dev
   'http://localhost:8000',   // Alt local dev
   'https://mumaa-api.srisumit96-1ca.workers.dev', // Production worker
+  'https://aimumaa.com',     // Production frontend
+  'https://www.aimumaa.com', // Production frontend
 ]
 
 // Global CORS
@@ -112,7 +114,5 @@ app.post('/routines', async (c) => {
     return c.json({ error: 'Database error' }, 500)
   }
 })
-
-// Diet routes handled by ./routes/diet_plan.ts
 
 export default app
