@@ -95,6 +95,10 @@ CREATE TABLE IF NOT EXISTS milestones (
     category TEXT, 
     achieved_date DATE,
     status TEXT CHECK( status IN ('pending', 'achieved') ) DEFAULT 'pending',
+    age_range TEXT,
+    badge TEXT,
+    description TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (baby_id) REFERENCES babies(id) ON DELETE CASCADE
 );
 
